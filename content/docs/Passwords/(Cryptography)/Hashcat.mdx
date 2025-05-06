@@ -1,0 +1,17 @@
+---
+title: Hashcat
+description:  Hashcat is an advanced password recovery tool used in cybersecurity practices. It is renowned for its versatile functionality, speed, and efficiency.
+---
+
+Usage:
+```bash
+hashcat -m 3200 -a 0 -o cracked.txt bycrypt.txt /usr/share/wordlists/rockyou.txt
+```
+- `-m` specifies the hash-type
+- `-a` specifies the attack type
+- `-o` specifies the filename the cracked hash is to be stored 
+- Then add the file name that contains the hash — here `bycrypt.txt`
+- And then, the path to the wordlist
+
+## Resources
+- [https://hashcat.net/hashcat/](https://hashcat.net/hashcat/)

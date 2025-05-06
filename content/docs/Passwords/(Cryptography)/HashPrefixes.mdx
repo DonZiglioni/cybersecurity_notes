@@ -1,0 +1,33 @@
+---
+title: Hash Prefixes
+description:  Identify commonly used hashes by prefix
+---
+
+## Shadow Hashes
+Consider the following line from a modern Linux system’s shadow password file
+
+```bash
+$ sudo cat/etc/shadow | grep user01
+> user01:$y$j9T$76UzfgEM5PnymhQ7TlJey1$/OOSg64dhfF.TigVPdzqiFang6uZA4QA1pzzegKdVm4:19965:0:99999:7:::
+```
+The fields are separated by colons: the username, hash algorithm, salt, and hash value and the second field has the format $prefix$options$salt$hash.
+
+In the example above, we have four parts separated by `$`:
+- `y` indicates the hash algorithm used, yescrypt
+- `j9T` is a parameter passed to the algorithm
+- `76UzfgEM5PnymhQ7TlJey1` is the salt used
+- `/OOSg64dhfF.TigVPdzqiFang6uZA4QA1pzzegKdVm4` is the hash value
+
+## Popular Hashes
+
+| Prefix	| Algorithm| 
+|---|---|
+| $1$ |	md5crypt, used in Cisco stuff and older Linux/Unix systems| 
+| $2$, $2a$, $2b$, $2x$, $2y$ | Bcrypt (Popular for web applications)| 
+| $6$	| sha512crypt (Default for most Linux/Unix systems)| 
+| $y$ |yescrypt is a scalable hashing scheme and is the default and recommended choice in new systems| 
+| $gy$| gost-yescrypt uses the GOST R 34.11-2012 hash function and the yescrypt hashing method | 
+| $7$	| scrypt is a password-based key derivation function| 
+| $md5 |SunMD5 is a hash based on the MD5 algorithm originally developed for Solaris | 
+
+Find many, many more at [https://hashcat.net/wiki/doku.php?id=example_hashes](https://hashcat.net/wiki/doku.php?id=example_hashes)

@@ -1,0 +1,37 @@
+---
+title: RDPassSpray
+description:  RDPassSpray is a Python3 tool designed to perform password spraying attacks in a Microsoft domain environment.
+---
+
+## Quickstart
+
+`git clone https://github.com/xFreed0m/RDPassSpray.git`
+
+1. `pip3 install -r requirements.txt`
+2. `apt-get install python-apt`
+2. `apt-get install xfreerdp`
+
+### Usage
+
+`$ python3 RDPassSpray.py -u [USERNAME] -p [PASSWORD] -d [DOMAIN] -t [TARGET IP]` 
+
+
+### Example
+```
+python3 RDPassSpray.py -u victim -p Pass2033! -t 10.10.100.240:3026
+```
+| Flag | Description |
+|--|--|
+| -p/-P | Single password/hash or file with passwords/hashes (one each line)| 
+| -t/-T | Single target or file with targets (one each line)| 
+| -u/-U | Single username or file with usernames (one each line)| 
+| --pth | Specify this if the supplied passwords are to be treated as hashes for Pass-The-Hash| 
+| -n | List of hostname to use when authenticating (more details below)| 
+| -o | Output file name (csv)| 
+| -s | Throttling time (in seconds) between attempts| 
+| -r | Random throttling time between attempts (based on user input for min and max values)| 
+
+
+## Resources
+
+- [https://github.com/xFreed0m/RDPassSpray](https://github.com/xFreed0m/RDPassSpray)

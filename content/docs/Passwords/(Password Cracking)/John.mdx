@@ -1,0 +1,95 @@
+---
+title: John the Ripper
+description:  John the Ripper is a free password cracking software tool originally developed for the Unix operating system It is frequently used for password testing and breaking due to its ability to combine multiple password crackers into one package, automatically detect password hash types, and include a customizable cracker.
+---
+
+## Basic usage
+
+1. Username and password hash is stored into a .txt file, i.e. hash.txt
+```
+carl:*EA031893AA21444B170FC2162A56978B8CEECE18
+   OR
+root:$6$zdk0.jUm$Vya24cGzM1duJkwM5b17Q205xDJ47LOAg/OpZvJ1gKbLF8PJBdKJA4a6M.JYPUTAaWu4infDjI88U9yUXEVgL.:18490:0:99999:7:::
+```
+2. Run 
+```
+$ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+```
+### Cracking .zip files
+1. Extract the hash from the password protected zip folder
+```
+$ zip2john backup.zip > backupHash.txt`
+```
+2. Run 
+```
+$ john --wordlist=/usr/share/wordlists/rockyou.txt backupHash.txt
+```
+*Also works with .rar files with rar2john*
+### Cracking SSH Keys
+1. Create a hash from the SSH key
+```
+$ python /usr/share/john/ssh2john.py id_rsa > hash.txt`
+```
+2. Run 
+```
+$ john --wordlist=/usr/share/wordlists/rockyou.txt hash.txt
+```
+*Make sure to change file to "chmod 600" after cracking to use for ssh sign in*
+### Cracking KeyPass files
+1. Create a hash for the KeyPass File
+```
+$ keepass2john dataset.kdbx > dbhash`
+```
+2. Run 
+```
+$ john --wordlist=/usr/share/wordlists/rockyou.txt dbhash
+```
+### Cracking PGP/GPG
+1. Create a hash for the GPG File
+```
+$ gpg2john (gpg) > gpgHash`
+```
+2. Run 
+```
+$ john --wordlist=/usr/share/wordlists/rockyou.txt gpgHash
+```
+
+# Custom Rules
+
+You can edit custom rules in `/etc/john/john.conf`
+
+```
+[List.Rules:ExamplePassword]
+cAz"[0-9] [!£$%@]"
+```
+The first line - [List.Rules:ExamplePassword] - Is used to define the name of your rule.  This is what you will use to call your custom rule as a John argument.
+
+- Az - Takes the word and appends it with the characters you define
+- A0 - Takes the word and prepends it with the characters you define
+- c - Capitalises the character positionally
+
+We then define what characters should be appended by adding character sets in square brackets [ ] in the order they should be used. These directly follow the modifier patterns inside of double quotes " ".
+
+- [0-9] - Will include numbers 0-9
+- [0] - Will include only the number 0
+- [A-z] - Will include both upper and lowercase
+- [A-Z] - Will include only uppercase letters
+- [a-z] - Will include only lowercase letters
+- [a] - Will include only a
+- [!£$%@] - Will include the symbols !£$%@
+
+The example password "Examplepassword1!"  would be created and found by generating a wordlist from the example rules
+
+
+| SECTION         |   FUNCTION | 
+| --- | ---|
+| -t 4            | Number of parallel connections per target| 
+| -l [USERNAME]   |  Points to the user who's account you're trying to compromise| 
+| -P [path to dictionary]  | Points to the file containing the list of possible passwords| 
+| -vV             |  Sets verbose mode to very verbose, shows the login+pass combination for each attempt| 
+| [TARGET_IP]     |  The IP address of the target machine| 
+| ftp / protocol  |   Sets the protocol (Over 50 different protocols)| 
+
+## Resources
+
+- [https://www.openwall.com/john/](https://www.openwall.com/john/)

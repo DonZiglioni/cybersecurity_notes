@@ -1,0 +1,30 @@
+---
+title: Wifite
+description:  An automated Wi-Fi hacking and security assessment tool, that streamlines the process of capturing wireless packets, deciphering intricate security protocols, and fortifying networks against potential threats.
+---
+
+## Quickstart
+
+```bash
+wget https://raw.github.com/derv82/wifite/master/wifite.py
+chmod +x wifite.py
+sudo ./wifite.py
+```
+
+### Usage
+
+```bash
+sudo wifite
+```
+- Starts wifite and puts card into monitor mode for you
+ - 'ctrl c' and select the target network
+- 'ctrl c' and then 'c' to continue
+- ls, and there is a "hs" dir, cd into it
+- /usr/share/hashcat-utils/cap2hccapx.bin longasshandhakefilename.cap wpa2.hccapx
+(it might be .hcc22000)
+
+- import new file into Hashcat
+
+## Resources
+
+- [https://github.com/derv82/wifite2](https://github.com/derv82/wifite2)

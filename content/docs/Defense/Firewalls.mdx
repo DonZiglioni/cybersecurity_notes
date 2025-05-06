@@ -1,0 +1,164 @@
+---
+title: Firewalls
+description:  Commonly used commands for configuring firewalls
+---
+
+
+## Iptables
+1. Targets
+    - ACCEPT - allow
+    - DROP - silently drop without a response
+    - REJECT - deny and send an ICMP message to indicate the denial
+2. Listing rules
+
+Normal listing:
+```bash
+sudo iptables -L
+```
+With line numbers:
+```bash
+sudo iptables -L --line-numbers
+```
+Without reverse DNS lookup:
+```bash
+sudo iptables -L -n
+```
+	3. Add Rules
+Block port 110:
+```bash
+sudo iptables -A INPUT -p tcp --dport 110 -j DROP
+```
+Allow multiple ports in one rule:
+```bash
+sudo iptables -A INPUT -p tcp -m multiport --dports 22,80,443 -j ACCEPT
+```
+Allow specific source IP address:
+```bash
+sudo iptables -I INPUT 2 -p tcp --dport 110 --source 10.10.0.20 -j ACCEPT
+```
+Allow established and related traffic in:
+```bash
+sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+```
+Allow new connections in on specific ports:
+```bash
+sudo iptables -A INPUT -p tcp -m multiport --dports 22,80,443 -m conntrack --ctstate NEW -j ACCEPT
+```
+Allow outbound related traffic:
+```bash
+sudo iptables -A OUTPUT -p tcp -m conntrack --ctstate ESTABLISHED -j ACCEPT
+```
+Allow new connections on a specific port to a specific destination IP address:
+```bash
+sudo iptables -A OUTPUT --dest 10.10.0.20 -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
+```
+4. Flush all rules
+```bash
+sudo iptables -F
+```
+5. Change default policy
+```bash
+sudo iptables -P INPUT REJECT
+sudo iptables -P OUTPUT DROP
+```
+6. Delete a rule
+```bash
+sudo iptables -D INPUT 1
+```
+
+## Firewalld
+1. Start the Service
+```bash
+sudo systemctl start firewalld
+```
+2. Stop the Service
+```bash
+sudo systemctl stop firewalld
+```
+3. Saving Current Rules
+```bash
+firewall-cmd --runtime-to-permanent
+```
+4. List Rules
+
+List all rules:
+```bash
+sudo firewall-cmd --list-all
+```
+List allowed services:
+```bash
+sudo firewall-cmd --list-services
+```
+List direct rules:
+```bash
+sudo firewall-cmd --direct --get-rules ipv4 filter OUTPUT
+```
+5. Allow a Service
+```bash
+sudo firewall-cmd --add-port 22/tcp --add-port 80/tcp --add-port 443/tcp
+```
+6. Remove a Service
+```bash
+sudo firewall-cmd --remove-service ssh --remove-service cockpit --remove-service dhcpv6-client
+```
+7. Add a Rich Rule
+```bash
+sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="10.10.0.10" port protocol="tcp" port="110" accept'
+```
+8. Add Rule to Iptables
+```bash
+sudo firewall-cmd --direct --add-rule ipv4 filter OUTPUT 0 -p tcp --dport 22 -j ACCEPT
+sudo firewall-cmd --direct --add-rule ipv4 filter OUTPUT 1 -j REJECT
+```
+
+## Ufw
+
+1. Start the Service
+```bash
+sudo ufw enable
+```
+2. Check the Service Status
+Basic check:
+```bash
+sudo ufw status
+```
+Check with line numbers:
+```bash
+sudo ufw status numbered
+```
+Verbose check:
+```bash
+sudo ufw status verbose
+```
+3. Reset the Rules
+```bash
+sudo ufw reset
+sudo ufw enable
+```
+4. Block Ports
+Drop packets:
+```bash
+sudo ufw deny ssh
+```
+Reject packets:
+```bash
+sudo ufw reject ssh
+```
+5. Allow Ports
+For all sources:
+```bash
+sudo ufw allow 22,80,443/tcp
+```
+For specific sources:
+```bash
+sudo ufw allow from 10.10.0.10/32 to any port 110
+```
+6. Delete Rules
+```bash
+sudo ufw delete 2
+```
+7. Set Default Policy
+```bash
+sudo ufw default deny incoming
+sudo ufw default reject outgoing
+```

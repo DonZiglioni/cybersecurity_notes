@@ -19,7 +19,7 @@ export const baseOptions: BaseLayoutProps = {
         >
           <circle cx={12} cy={12} r={12} fill="currentColor" />
         </svg>
-        My App
+        The Conflux
       </>
     ),
   },
@@ -29,5 +29,11 @@ export const baseOptions: BaseLayoutProps = {
       url: '/docs',
       active: 'nested-url',
     },
+    // {
+    //   text: 'Blog',
+    //   url: '/blog',
+    //   // secondary items will be displayed differently on navbar
+    //   secondary: false,
+    // },
   ],
 };

@@ -1,0 +1,88 @@
+---
+title: Username Generator
+description:  username_generator.py is a script built to create a list of usernames to be used in bruteforcing attacks.
+---
+
+## Quickstart
+
+`git clone https://github.com/therodri2/username_generator.git`
+
+### Usage
+
+```
+usage: username_generator.py [-h] -w wordlist [-u]
+
+Python script to generate user lists for bruteforcing!
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -w wordlist, --wordlist wordlist
+                        Specify path to the wordlist
+  -u, --uppercase       Also produce uppercase permutations. Disabled by default
+
+```
+Example with lowercase permutations only:
+```
+$ echo"John Smith" > users.lst
+$ python3 username_generator.py -w users.lst 
+john 
+smith 
+j.smith 
+j-smith 
+j_smith 
+j+smith 
+jsmith 
+smithjohn
+...etc...
+```
+Example wordlist:
+```
+$ cat example_wordlist.lst 
+John Lennon
+Lewis Hamilton
+Iron Man
+```
+Example output with both lower and uppercase permutations:
+```
+$ python3 username_generator.py -w example_wordlist.lst --uppercase
+john
+lennon
+j.lennon
+j-lennon
+j_lennon
+j+lennon
+jlennon
+lennonjohn
+John
+Lennon
+J.Lennon
+J_Lennon
+J-Lennon
+JLennon
+LennonJohn
+JOHN
+LENNON
+JOHNLENNON
+lewis
+hamilton
+l.hamilton
+l-hamilton
+l_hamilton
+l+hamilton
+LHAMILTON
+hamiltonLEWIS
+iron
+man
+i.man
+i-man
+i_man
+i+man
+IRON
+maniron
+```
+
+
+
+## Resources
+
+- [https://github.com/shroudri/username_generator](https://github.com/shroudri/username_generator)

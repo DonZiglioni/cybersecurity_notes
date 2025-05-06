@@ -1,0 +1,40 @@
+---
+title: Crunch
+description:  Crunch is a wordlist generator tool that can be used to create custom wordlists based on specified criteria. It generates wordlists through combinations and permutations of a set of characters, which can include numbers, symbols, and both uppercase and lowercase letters.
+---
+
+## Quickstart
+
+`sudo apt install crunch`
+
+### Usage
+
+The following example creates a wordlist containing all possible combinations of 2 characters, including 0-4 and a-d. We can use the -o argument and specify a file to save the output to.
+
+`$ crunch 2 2 01234abcd -o crunch.txt` 
+```
+Crunch will now generate the following amount of data: 
+243 bytes 
+0 MB 
+0 GB 
+0 TB 
+0 PB 
+Crunch will now generate the following number of lines: xx 
+crunch: 100% completed generating output
+```
+
+You can specify a character set using the `-t` option to combine words of our choice
+- @ - lower case alpha characters
+- , - upper case alpha characters
+- % - numeric characters
+- ^ - special characters including space
+
+If part of the password is known to us, and we know it starts with "pass" and follows two numbers, we can use the `%` symbol from above to match the numbers.
+
+Here we generate a wordlist that contains pass followed by 2 numbers:
+
+`$ crunch 6 6 -t pass%%`
+
+## Resources
+
+- [https://www.kali.org/tools/crunch/](https://www.kali.org/tools/crunch/)

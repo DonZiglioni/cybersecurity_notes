@@ -1,0 +1,42 @@
+---
+title: Nmap
+description: Nmap ("Network Mapper") is a free and open source utility for network discovery and security auditing
+---
+
+## Main Scans
+
+- `nmap -sC -sV -Pn TARGET_IP > nmap1.txt`
+- `nmap -p- -T4 TARGET_IP > nmapPorts.txt`
+- `sudo nmap -sU -T4 TARGET_IP > nmapUDP.txt`
+
+## Other Scans
+
+#### Null Scan (`-sN`)
+The null scan does not set any flag; all six flag bits are set to zero. A TCP packet with no flags set will not trigger any response when it reaches an open port
+
+#### FIN Scan (`-sF`)
+The FIN scan sends a TCP packet with the FIN flag set.  Similarly, no response will be sent if the TCP port is open. Again, Nmap cannot be sure if the port is open or if a firewall is blocking the traffic related to this TCP port.
+
+#### Xmas Scan (`-sX`)
+An Xmas scan sets the FIN, PSH, and URG flags simultaneously.  Like the Null scan and FIN scan, if an RST packet is received, it means that the port is closed. Otherwise, it will be reported as `open|filtered`.
+
+#### TCP ACK Scan (`-sA`)
+As the name implies, an ACK scan will send a TCP packet with the ACK flag set. 
+
+#### Window Scan (`-sW`)
+The TCP window scan is almost the same as the ACK scan, however, it examines the TCP Window field of the RST packets returned. On specific systems, this can reveal that the port is open.
+
+#### Custom Scan (`--scanflags`)
+If you want to experiment with a new TCP flag combination beyond the built-in TCP scan types, you can do so 
+using `--scanflags`. For instance, if you want to set SYN, RST, and FIN simultaneously, you can do so 
+using `--scanflags RSTSYNFIN`.
+
+#### Manipulate Source TCP/UDP Port (`-g <PORT_NUMBER>`)
+You can add the option `-g PORT_NUMBER` (or `--source-port PORT_NUMBER`) to make Nmap send all its traffic from a specific source port number.
+
+- For TCP, `nmap -sS -Pn -g 80 -F 10.10.146.129` will make the port scanning traffic appear to be exchanged with an HTTP server at first glance.
+- For UDP, `nmap -sU -Pn -g 53 -F 10.10.146.129` will make the traffic appear to be exchanged with a DNS server.
+
+## Other Resources
+
+- [https://nmap.org/](https://nmap.org/)

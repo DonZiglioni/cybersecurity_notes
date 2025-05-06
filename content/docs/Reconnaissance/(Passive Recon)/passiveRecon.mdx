@@ -1,0 +1,25 @@
+---
+title: Passive Reconnaissance
+description: Gathering information about a target system or network without directly interacting with it
+---
+
+Passive reconnaissance activities include many activities, for instance:
+- Looking up DNS records of a domain from a public DNS server.
+- Checking job ads related to the target website.
+- Reading news articles about the target company.
+
+## whois / nslookup / dig
+
+| Purpose |	Commandline |
+| --- | --- |
+| Lookup WHOIS record	| `whois google.com` | 
+| Lookup DNS A records | `nslookup -type=A google.com` | 
+| Lookup DNS MX records at DNS server |	`nslookup -type=MX google.com` 1.1.1.1 | 
+| Lookup DNS TXT records | `nslookup -type=TXT google.com` | 
+| Lookup DNS A records | `dig google.com` A | 
+| Lookup DNS MX records at DNS server | `dig @1.1.1.1 google.com` MX | 
+| Lookup DNS TXT records | `dig google.com` TXT | 
+
+## Other Resources
+
+- [https://www.dnsdumpster.com](https://www.dnsdumpster.com)
