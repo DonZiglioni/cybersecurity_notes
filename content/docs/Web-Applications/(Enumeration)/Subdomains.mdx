@@ -1,0 +1,44 @@
+---
+title: Subdomains
+description:  The process of identifying all subdomains for a given domain
+---
+
+## Extracting Subdomains
+
+## crt.sh
+```bash
+%.azena.com : Certificate searches subdomains
+```
+## subfinder
+```bash
+subfinder -d azena.com -o azena
+```
+- `-o` | Outputs to a separate file
+
+## assetfinder
+```bash
+assetfinder azena.com | grep azena.com | sort -u > azena2.txt
+```
+- `-u` | Sort unique
+
+## OWASP Amass
+```bash
+amass enum -d azena.com > azena3.txt
+```
+- Takes a much longer time
+
+## httprobe
+```bash
+httprobe -prefer-https | grep https > azenaLive.txt
+```
+- shows subdomains that are ALIVE
+## gowitness
+```bash
+mkdir azenapics
+gowitness file -f azenaLive.txt -P /azenapics 
+```
+- Navigates to all pages inside of text file for us!
+## Sublist3r
+```bash
+sublist3r -d tesla.com
+```

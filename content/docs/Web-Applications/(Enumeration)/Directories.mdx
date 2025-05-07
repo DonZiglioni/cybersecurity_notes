@@ -1,0 +1,28 @@
+---
+title: Directories
+description:  Commonly used ways of finding directories on a given domain.
+---
+
+## Dirbuster
+```bash
+$ dirbuster
+```
+- Built in GUI
+- Set target ip
+- Turn up threads! (200-999)
+- List-based : Find Wordlist
+## Dirb 
+```bash
+$ dirb http://10.10.129.69/ /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt
+```
+- Usually slower
+## GoBuster
+```bash
+$ gobuster dir --url http://10.10.129.69/ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt
+```
+
+## Feroxbuster
+```bash
+$ feroxbuster --url http://10.10.129.69/ --wordlist /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt
+```
+- Fastest

